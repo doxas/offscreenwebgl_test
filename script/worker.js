@@ -11,6 +11,13 @@ onmessage = (e) => {
                 frag.run = e.data.key !== 'Escape';
             }
             break;
+        case 'mousemove':
+            if(frag != null){
+                let x = e.data.x;
+                let y = e.data.y;
+                frag.mousePosition = [x, y];
+            }
+            break;
         case 'resize':
             if(frag != null){
                 frag.rect(e.data.width, e.data.height);
@@ -39,6 +46,7 @@ class FragmenEX {
         this.run = false;
         this.startTime = 0;
         this.nowTime = 0;
+        this.mousePosition = [0, 0];
         this.program = null;
         this.uniLocation = null;
         this.attLocation = null;
@@ -179,7 +187,7 @@ void main(){
         this.gl.enableVertexAttribArray(this.attLocation);
         this.gl.vertexAttribPointer(this.attLocation, 3, this.gl.FLOAT, false, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        // this.gl.uniform2fv(this.uniLocation.mouse, this.mousePosition);
+        this.gl.uniform2fv(this.uniLocation.mouse, this.mousePosition);
         this.gl.uniform1f(this.uniLocation.time, this.nowTime);
         this.gl.uniform2fv(this.uniLocation.resolution, [this.width, this.height]);
         this.gl.uniform1i(this.uniLocation.sampler, 0);
