@@ -27,6 +27,9 @@ onmessage = (e) => {
             canvas = e.data.offscreen;
             frag = new FragmenEX(canvas).render(e.data.source);
             break;
+        case 'run':
+            frag.reset();
+            break;
         default:
             break;
     }

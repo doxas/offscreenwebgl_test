@@ -1,43 +1,63 @@
 
 (() => {
+    let isStart = false;
     let canvas = null;
     let worker = null;
 
     window.addEventListener('load', () => {
-        if(window.Worker != null){
-            worker = new Worker('./script/worker.js');
-            window.addEventListener('mousemove', (eve) => {
-                worker.postMessage({
-                    type: 'mousemove',
-                    x: eve.clientX / window.innerWidth,
-                    y: eve.clientY / window.innerHeight
-                });
-            }, false);
-            window.addEventListener('keydown', (eve) => {
-                worker.postMessage({type: 'keydown', key: eve.key});
-            }, false);
-            window.addEventListener('resize', (eve) => {
-                worker.postMessage({
-                    type: 'resize',
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                });
-            }, false);
-        }else{
-            console.log('ERR: webworker not supported');
-            return;
-        }
-
-        canvas = document.body.querySelector('#canvas');
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-        let offscreenCanvas = canvas.transferControlToOffscreen();
-        worker.postMessage({
-            type: 'init',
-            offscreen: offscreenCanvas,
-            source: FRAGMENT_SHADER_SOURCE
-        }, [offscreenCanvas]);
+        let e = document.body.querySelector('#run');
+        e.addEventListener('click', () => {
+            if(isStart === true){
+                isStart = false;
+                e.value = 'run';
+                worker.postMessage({type: 'keydown', key: 'Escape'});
+            }else{
+                isStart = true;
+                e.value = 'stop';
+                initialize();
+            }
+        }, false);
     }, false);
+
+    function initialize(){
+        if(canvas == null){
+            if(window.Worker != null){
+                worker = new Worker('./script/worker.js');
+                window.addEventListener('mousemove', (eve) => {
+                    worker.postMessage({
+                        type: 'mousemove',
+                        x: eve.clientX / window.innerWidth,
+                        y: eve.clientY / window.innerHeight
+                    });
+                }, false);
+                window.addEventListener('keydown', (eve) => {
+                    worker.postMessage({type: 'keydown', key: eve.key});
+                }, false);
+                window.addEventListener('resize', (eve) => {
+                    worker.postMessage({
+                        type: 'resize',
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    });
+                }, false);
+            }else{
+                console.log('ERR: webworker not supported');
+                return;
+            }
+            canvas = document.body.querySelector('#canvas');
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let offscreenCanvas = canvas.transferControlToOffscreen();
+            worker.postMessage({
+                type: 'init',
+                offscreen: offscreenCanvas,
+                source: FRAGMENT_SHADER_SOURCE
+            }, [offscreenCanvas]);
+        }else{
+            let s = Math.min(window.innerWidth, window.innerHeight);
+            worker.postMessage({type: 'run', width: s, height: s});
+        }
+    }
 
     const FRAGMENT_SHADER_SOURCE = `
 #ifdef GL_ES

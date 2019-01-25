@@ -28,7 +28,7 @@ canvas {
 
 #info input[type=range] {
     width: 480px;
-    margin: auto;
+    margin: 0px 0px 0px 50px;
 }
 
 
